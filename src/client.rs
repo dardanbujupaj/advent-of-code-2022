@@ -1,6 +1,5 @@
-use std::{env, error::Error, sync::Arc};
-
 use reqwest::{blocking::Client, cookie::Jar, Url};
+use std::{env, error::Error, io, path::Path, sync::Arc};
 
 fn get_aoc_client() -> Result<Client, Box<dyn Error>> {
     let cookie = format!("session={}", env::var("AOC_SESSION")?);
@@ -15,9 +14,30 @@ fn get_aoc_client() -> Result<Client, Box<dyn Error>> {
     Ok(client)
 }
 
+fn get_input_path(year: u32, day: u32) -> String {
+    format!("./.input/{}_{:0>2}.txt", year, day)
+}
+
+fn get_cached_input(year: u32, day: u32) -> Result<String, io::Error> {
+    std::fs::read_to_string(get_input_path(year, day))
+}
+
+fn cache_input(year: u32, day: u32, input: &str) -> Result<(), io::Error> {
+    let input_path = Path::new("./.input/");
+    
+    if !std::path::Path::exists(input_path) {
+        std::fs::create_dir("./.input/")?;
+    }
+
+    std::fs::write(get_input_path(year, day), input)
+}
+
 /// download puzzle input
-/// TODO: setup input caching
-pub fn get_input(year: i32, day: i32) -> Result<String, Box<dyn Error>> {
+pub fn get_input(year: u32, day: u32) -> Result<String, Box<dyn Error>> {
+    if let Ok(input) = get_cached_input(year, day) {
+        return Ok(input);
+    }
+
     println!("Downloading input for {year}-{day}");
     let client = get_aoc_client()?;
 
@@ -27,5 +47,19 @@ pub fn get_input(year: i32, day: i32) -> Result<String, Box<dyn Error>> {
 
     let result = res.text()?;
 
+    if let Err(error) = cache_input(year, day, &result) {
+        println!("Error while caching file {}", error)
+    }
+
     Ok(result)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_input_path() {
+        assert_eq!("./.input/2022_01.txt", get_input_path(2022, 01))
+    }
 }
