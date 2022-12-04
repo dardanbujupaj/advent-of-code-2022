@@ -1,6 +1,6 @@
 use aoc::client::get_input;
 use regex::Regex;
-use std::{collections::HashSet, error::Error, ops::RangeInclusive};
+use std::{error::Error, ops::RangeInclusive};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let input = get_input(2022, 4)?;
@@ -35,16 +35,11 @@ fn part_1(input: &str) -> String {
     let overlaps = parse_input(input)
         .iter()
         .filter(|ranges| {
-            if ranges.0.start() >= ranges.1.start() && ranges.0.end() <= ranges.1.end()
-                || ranges.1.start() >= ranges.0.start() && ranges.1.end() <= ranges.0.end()
-            {
-                return true;
-            } else {
-                return false;
-            }
+            return ranges.0.start() >= ranges.1.start() && ranges.0.end() <= ranges.1.end()
+                || ranges.1.start() >= ranges.0.start() && ranges.1.end() <= ranges.0.end();
         })
         .count();
-    
+
     format!("{overlaps}")
 }
 
@@ -52,16 +47,11 @@ fn part_2(input: &str) -> String {
     let overlaps = parse_input(input)
         .iter()
         .filter(|ranges| {
-            if ranges.0.start() >= ranges.1.start() && ranges.0.start() <= ranges.1.end()
-                || ranges.1.start() >= ranges.0.start() && ranges.1.start() <= ranges.0.end()
-            {
-                return true;
-            } else {
-                return false;
-            }
+            return ranges.0.start() >= ranges.1.start() && ranges.0.start() <= ranges.1.end()
+                || ranges.1.start() >= ranges.0.start() && ranges.1.start() <= ranges.0.end();
         })
         .count();
-    
+
     format!("{overlaps}")
 }
 

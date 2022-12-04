@@ -41,9 +41,9 @@ fn parse_input(input: &str) -> Vec<(Hand, Hand)> {
     input
         .lines()
         .map(|l| {
-            let mut hands = l.split(' ').map(|hand| parse_hand(hand));
+            let mut hands = l.split(' ').map(parse_hand);
 
-            (hands.nth(0).unwrap(), hands.nth(0).unwrap())
+            (hands.next().unwrap(), hands.next().unwrap())
         })
         .collect()
 }
@@ -56,7 +56,7 @@ enum Outcome {
 }
 
 fn compare_hands(opponent: Hand, own: Hand) -> Outcome {
-    return match (own, opponent) {
+    match (own, opponent) {
         (Hand::Rock, Hand::Rock) => Outcome::Draw,
         (Hand::Rock, Hand::Paper) => Outcome::Loss,
         (Hand::Rock, Hand::Scissor) => Outcome::Victory,
@@ -66,14 +66,15 @@ fn compare_hands(opponent: Hand, own: Hand) -> Outcome {
         (Hand::Scissor, Hand::Rock) => Outcome::Loss,
         (Hand::Scissor, Hand::Paper) => Outcome::Victory,
         (Hand::Scissor, Hand::Scissor) => Outcome::Draw,
-    };
+    }
 }
 
 fn part_1(input: &str) -> String {
     let score = parse_input(input)
         .iter()
-        .map(|hands| match hands {
-            (opponent, own) => (compare_hands(*opponent, *own) as usize) + (*own as usize),
+        .map(|hands| {
+            let (opponent, own) = hands;
+            (compare_hands(*opponent, *own) as usize) + (*own as usize)
         })
         .sum::<usize>();
     format!("{score}")
@@ -86,8 +87,8 @@ fn parse_input_part_2(input: &str) -> Vec<(Hand, Outcome)> {
             let mut split = l.split(' ');
 
             (
-                parse_hand(split.nth(0).unwrap()),
-                parse_outcome(split.nth(0).unwrap()),
+                parse_hand(split.next().unwrap()),
+                parse_outcome(split.next().unwrap()),
             )
         })
         .collect()

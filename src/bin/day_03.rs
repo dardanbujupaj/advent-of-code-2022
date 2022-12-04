@@ -32,16 +32,17 @@ fn part_1(input: &str) -> String {
 }
 
 fn part_2(input: &str) -> String {
-    let mut lines = input.lines();
+    let lines = input.lines();
 
     let mut sum = 0;
 
-
     for i in 0..lines.count() / 3 {
-        sum += input.lines().skip(i * 3)
+        sum += input
+            .lines()
+            .skip(i * 3)
             .take(3)
             .map(|l| HashSet::<char>::from_iter(l.chars()))
-            .reduce(|a, b| a.intersection(&b).map(|c| *c).collect::<HashSet<char>>())
+            .reduce(|a, b| a.intersection(&b).copied().collect::<HashSet<char>>())
             .unwrap()
             .iter()
             .map(|c| ITEMS.find(*c).unwrap() + 1)
