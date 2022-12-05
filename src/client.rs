@@ -1,6 +1,8 @@
 use reqwest::{blocking::Client, cookie::Jar, Url};
 use std::{env, error::Error, io, path::Path, sync::Arc};
 
+const INPUT_CACHE_FOLDER: &str = "./.input/";
+
 fn get_aoc_client() -> Result<Client, Box<dyn Error>> {
     let cookie = format!("session={}", env::var("AOC_SESSION")?);
 
@@ -15,7 +17,7 @@ fn get_aoc_client() -> Result<Client, Box<dyn Error>> {
 }
 
 fn get_input_path(year: u32, day: u32) -> String {
-    format!("./.input/{}_{:0>2}.txt", year, day)
+    format!("{INPUT_CACHE_FOLDER}{year}_{day:0>2}.txt")
 }
 
 fn get_cached_input(year: u32, day: u32) -> Result<String, io::Error> {
@@ -23,10 +25,10 @@ fn get_cached_input(year: u32, day: u32) -> Result<String, io::Error> {
 }
 
 fn cache_input(year: u32, day: u32, input: &str) -> Result<(), io::Error> {
-    let input_path = Path::new("./.input/");
-    
+    let input_path = Path::new(INPUT_CACHE_FOLDER);
+
     if !std::path::Path::exists(input_path) {
-        std::fs::create_dir("./.input/")?;
+        std::fs::create_dir(INPUT_CACHE_FOLDER)?;
     }
 
     std::fs::write(get_input_path(year, day), input)
