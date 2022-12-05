@@ -27,10 +27,8 @@ fn main() -> Result<(), Box<dyn Error>> {
     let args = Args::parse();
 
     let datetime = Utc::now();
-    let day = args.day.unwrap_or(datetime.day());
-    let year = args.year.unwrap_or(datetime.year() as u32);
-
-    println!("{year} {day}");
+    let day = args.day.unwrap_or_else(|| datetime.day());
+    let year = args.year.unwrap_or_else(|| datetime.year() as u32);
 
     match args.command {
         Commands::Init => {
