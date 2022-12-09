@@ -1,29 +1,52 @@
 use aoc::{client::get_input, point::Point};
-use std::{error::Error, iter, collections::HashSet};
+use std::{error::Error, iter, collections::HashSet, thread::panicking};
 
+#[derive(Debug)]
 struct Rope {
-    head: Point,
-    tail: Point,
+    knots: Vec<Point>,
 }
 
 impl Rope {
-    fn update_tail(&mut self) {
-        if isize::abs(self.tail.x - self.head.x) <= 1 && isize::abs(self.tail.y - self.head.y) <= 1 {
-            // tail is close enough
-            return
+    fn new(length: usize) -> Self {
+        if length < 2 {
+            panic!("Rope needs at least two knots")
         }
 
-        self.tail.y += isize::signum(self.head.y - self.tail.y);
-        self.tail.x += isize::signum(self.head.x - self.tail.x);
+        Self {
+            knots: vec![Point::default(); length]
+        }
+    }
+
+    fn move_by(&mut self, distance: Point) {
+        let mut head = self.knots.get_mut(0).unwrap();
+
+        // move head
+        head.x += distance.x;
+        head.y += distance.y;
+
+        // update tail
+        for i in 1..self.knots.len() {
+            let leading_knot = self.knots.get(i - 1).unwrap().clone();
+            let current_knot = self.knots.get_mut(i).unwrap();
+
+            if isize::abs(current_knot.x - leading_knot.x) <= 1 && isize::abs(current_knot.y - leading_knot.y) <= 1 {
+                // knot is close enough
+                break
+            }
+
+            current_knot.y += isize::signum(leading_knot.y - current_knot.y);
+            current_knot.x += isize::signum(leading_knot.x - current_knot.x);
+        }
+    }
+
+    fn tail(&self) -> &Point {
+        self.knots.last().unwrap()
     }
 }
 
 impl Default for Rope {
     fn default() -> Self {
-        Self {
-            head: Default::default(),
-            tail: Default::default(),
-        }
+        Self::new(2)
     }
 }
 
@@ -60,19 +83,29 @@ fn part_1(input: &str) -> Result<String, Box<dyn Error>> {
     let mut rope = Rope::default();
     let mut visited = HashSet::<Point>::new();
     
-    visited.insert(rope.tail);
+    visited.insert(*rope.tail());
 
     for next_move in moves {
-        rope.head += next_move;
-        rope.update_tail();
-        visited.insert(rope.tail);
+        rope.move_by(next_move);
+        visited.insert(*rope.tail());
     }
 
     Ok(format!("{}", visited.len()))
 }
 
 fn part_2(input: &str) -> Result<String, Box<dyn Error>> {
-    unimplemented!();
+    let moves = parse_input(input);
+    let mut rope = Rope::new(10);
+    let mut visited = HashSet::<Point>::new();
+    
+    visited.insert(*rope.tail());
+
+    for next_move in moves {
+        rope.move_by(next_move);
+        visited.insert(*rope.tail());
+    }
+
+    Ok(format!("{}", visited.len()))
 }
 
 #[cfg(test)]
@@ -95,6 +128,19 @@ R 2";
 
     #[test]
     fn test_part_2() {
-        assert_eq!(part_2(TEST_INPUT).unwrap(), "")
+        assert_eq!(part_2(TEST_INPUT).unwrap(), "1")
+    }
+
+    #[test]
+    fn test_part_2_extended() {
+        const EXTENDED_TEST_INPUT: &str = "R 5
+U 8
+L 8
+D 3
+R 17
+D 10
+L 25
+U 20";
+        assert_eq!(part_2(EXTENDED_TEST_INPUT).unwrap(), "36")
     }
 }
