@@ -62,6 +62,6 @@ mod tests {
 
     #[test]
     fn test_get_input_path() {
-        assert_eq!("./.input/2022_01.txt", get_input_path(2022, 01))
+        assert_eq!("./.input/2022_01.txt", get_input_path(2022, 1))
     }
 }

@@ -1,5 +1,5 @@
 use aoc::{client::get_input, point::Point};
-use std::{error::Error, iter, collections::HashSet, thread::panicking};
+use std::{collections::HashSet, error::Error, iter};
 
 #[derive(Debug)]
 struct Rope {
@@ -13,7 +13,7 @@ impl Rope {
         }
 
         Self {
-            knots: vec![Point::default(); length]
+            knots: vec![Point::default(); length],
         }
     }
 
@@ -26,12 +26,14 @@ impl Rope {
 
         // update tail
         for i in 1..self.knots.len() {
-            let leading_knot = self.knots.get(i - 1).unwrap().clone();
+            let leading_knot = *self.knots.get(i - 1).unwrap();
             let current_knot = self.knots.get_mut(i).unwrap();
 
-            if isize::abs(current_knot.x - leading_knot.x) <= 1 && isize::abs(current_knot.y - leading_knot.y) <= 1 {
+            if isize::abs(current_knot.x - leading_knot.x) <= 1
+                && isize::abs(current_knot.y - leading_knot.y) <= 1
+            {
                 // knot is close enough
-                break
+                break;
             }
 
             current_knot.y += isize::signum(leading_knot.y - current_knot.y);
@@ -62,13 +64,13 @@ fn parse_input(input: &str) -> Vec<Point> {
     input
         .lines()
         .flat_map(|line| {
-            let mut parts = line.split(" ");
+            let mut parts = line.split(' ');
 
             let direction = match parts.next().unwrap() {
-                "L" => Point::at(-1, 0),
-                "R" => Point::at(1, 0),
-                "U" => Point::at(0, 1),
-                "D" => Point::at(0, -1),
+                "L" => Point::new(-1, 0, 0),
+                "R" => Point::new(1, 0, 0),
+                "U" => Point::new(0, 1, 0),
+                "D" => Point::new(0, -1, 0),
                 _ => unreachable!(),
             };
             let steps = parts.next().unwrap().parse::<usize>().unwrap();
@@ -82,7 +84,7 @@ fn part_1(input: &str) -> Result<String, Box<dyn Error>> {
     let moves = parse_input(input);
     let mut rope = Rope::default();
     let mut visited = HashSet::<Point>::new();
-    
+
     visited.insert(*rope.tail());
 
     for next_move in moves {
@@ -97,7 +99,7 @@ fn part_2(input: &str) -> Result<String, Box<dyn Error>> {
     let moves = parse_input(input);
     let mut rope = Rope::new(10);
     let mut visited = HashSet::<Point>::new();
-    
+
     visited.insert(*rope.tail());
 
     for next_move in moves {

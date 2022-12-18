@@ -1,27 +1,33 @@
-use std::ops::{Add, AddAssign};
+use std::{
+    num::ParseIntError,
+    ops::{Add, AddAssign},
+    str::FromStr,
+};
 
-#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy, Hash, Default)]
 pub struct Point {
     pub x: isize,
     pub y: isize,
+    pub z: isize,
 }
 
 impl Point {
-    pub fn new() -> Self {
-        Self { x: 0, y: 0 }
+    pub fn new(x: isize, y: isize, z: isize) -> Point {
+        Self { x, y, z }
     }
+}
 
-    pub fn at(x: isize, y: isize) -> Point {
-        Self { x, y }
-    }
+impl FromStr for Point {
+    type Err = ParseIntError;
 
-    pub fn parse(input: &str) -> Point {
-        let values: Vec<isize> = input.split(',').map(|p| p.parse().unwrap()).collect();
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let mut values = s.split(',').map(|p| p.parse::<isize>().unwrap());
 
-        Self {
-            x: values[0],
-            y: values[1],
-        }
+        Ok(Self {
+            x: values.next().unwrap(),
+            y: values.next().unwrap(),
+            z: values.next().unwrap_or(0),
+        })
     }
 }
 
@@ -32,6 +38,7 @@ impl Add for Point {
         Self {
             x: self.x + rhs.x,
             y: self.y + rhs.y,
+            z: self.z + rhs.z,
         }
     }
 }
@@ -40,12 +47,7 @@ impl AddAssign for Point {
     fn add_assign(&mut self, rhs: Self) {
         self.x += rhs.x;
         self.y += rhs.y;
-    }
-}
-
-impl Default for Point {
-    fn default() -> Self {
-        Self::new()
+        self.z += rhs.z;
     }
 }
 
@@ -55,28 +57,36 @@ mod tests {
 
     #[test]
     fn test_new() {
-        assert_eq!(Point::new(), Point { x: 0, y: 0 });
+        assert_eq!(Point::default(), Point { x: 0, y: 0, z: 0 });
     }
 
     #[test]
     fn test_at() {
-        assert_eq!(Point::at(1, 2), Point { x: 1, y: 2 });
+        assert_eq!(Point::new(1, 2, 0), Point { x: 1, y: 2, z: 0 });
     }
 
     #[test]
-    fn test_parse() {
-        assert_eq!(Point::parse("1,2"), Point { x: 1, y: 2 });
+    fn test_parse_2d() {
+        assert_eq!(Point::from_str("1,2").unwrap(), Point { x: 1, y: 2, z: 0 });
+    }
+
+    #[test]
+    fn test_parse_3d() {
+        assert_eq!(
+            Point::from_str("1,2,3").unwrap(),
+            Point { x: 1, y: 2, z: 3 }
+        );
     }
 
     #[test]
     fn test_add() {
         assert_eq!(
-            Point { x: 1, y: 2 } + Point { x: 2, y: 1 },
-            Point { x: 3, y: 3 }
+            Point { x: 1, y: 2, z: 1 } + Point { x: 2, y: 1, z: 3 },
+            Point { x: 3, y: 3, z: 4 }
         );
         assert_ne!(
-            Point { x: 1, y: 2 } + Point { x: 2, y: 1 },
-            Point { x: 1, y: 2 }
+            Point { x: 1, y: 2, z: 0 } + Point { x: 2, y: 1, z: 1 },
+            Point { x: 1, y: 2, z: 0 }
         );
     }
 }
