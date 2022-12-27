@@ -9,17 +9,17 @@ use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {{
     let input = get_input({year}, {day})?;
-    println!(\"solution part 1: {{}}\", part_1(&input));
-    println!(\"solution part 2: {{}}\", part_2(&input));
+    println!(\"solution part 1: {{}}\", part_1(&input)?);
+    println!(\"solution part 2: {{}}\", part_2(&input)?);
 
     Ok(())
 }}
 
-fn part_1(input: &str) -> String {{
+fn part_1(input: &str) -> Result<String, Box<dyn Error>> {{
     unimplemented!();
 }}
 
-fn part_2(input: &str) -> String {{
+fn part_2(input: &str) -> Result<String, Box<dyn Error>> {{
     unimplemented!();
 }}
 
@@ -31,12 +31,12 @@ mod tests {{
 
     #[test]
     fn test_part_1() {{
-        assert_eq!(part_1(TEST_INPUT), \"\")
+        assert_eq!(part_1(TEST_INPUT).unwrap(), \"\")
     }}
 
     #[test]
     fn test_part_2() {{
-        assert_eq!(part_2(TEST_INPUT), \"\")
+        assert_eq!(part_2(TEST_INPUT).unwrap(), \"\")
     }}
 }}
 "

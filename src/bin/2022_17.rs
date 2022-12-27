@@ -70,16 +70,15 @@ fn check_block(position: &Point, block: &Vec<Point>, fixed_blocks: &HashSet<Poin
 }
 
 fn find_cycle(elements: &[usize]) -> (usize, usize) {
-
     for offset in 0..elements.len() / 2 {
         let offsetted_elements = &elements[offset..];
         for n in (32..=offsetted_elements.len()).step_by(2) {
-            if offsetted_elements[0..n/2] == offsetted_elements[n/2..n] {
-                return (offset, n/2)
+            if offsetted_elements[0..n / 2] == offsetted_elements[n / 2..n] {
+                return (offset, n / 2);
             }
         }
     }
-    return (0, elements.len())
+    return (0, elements.len());
 }
 
 fn check_point(position: &Point, fixed_blocks: &HashSet<Point>) -> bool {
@@ -111,47 +110,40 @@ fn build_tower(input: &str, blocks: usize) -> (usize, Vec<usize>) {
         })
         .cycle();
 
-    get_blocks()
-        .iter()
-        .cycle()
-        .take(blocks)
-        .for_each(|block| {
+    get_blocks().iter().cycle().take(blocks).for_each(|block| {
+        let mut position = Point::new(2, height as isize + 1 + 3, 0);
 
-            let mut position = Point::new(2, height as isize + 1 + 3, 0);
+        loop {
+            let movement = movements.next().unwrap();
 
-            loop {
-                let movement = movements.next().unwrap();
-
-                if check_block(
-                    &(position + Point::new(movement, 0, 0)),
-                    block,
-                    &fixed_blocks,
-                ) {
-                    position.x += movement;
-                }
-
-                if check_block(&(position + Point::new(0, -1, 0)), block, &fixed_blocks) {
-                    position.y -= 1;
-                } else {
-                    let last_height = height;
-
-                    for point in block {
-                        let actual_pos = *point + position;
-                        fixed_blocks.insert(actual_pos);
-                        height = usize::max(actual_pos.y as usize, height);
-                    }
-
-                    diffs.push(height - last_height);
-
-                    return
-                }
+            if check_block(
+                &(position + Point::new(movement, 0, 0)),
+                block,
+                &fixed_blocks,
+            ) {
+                position.x += movement;
             }
-        });
+
+            if check_block(&(position + Point::new(0, -1, 0)), block, &fixed_blocks) {
+                position.y -= 1;
+            } else {
+                let last_height = height;
+
+                for point in block {
+                    let actual_pos = *point + position;
+                    fixed_blocks.insert(actual_pos);
+                    height = usize::max(actual_pos.y as usize, height);
+                }
+
+                diffs.push(height - last_height);
+
+                return;
+            }
+        }
+    });
 
     (height, diffs)
 }
-
-
 
 fn part_1(input: &str) -> Result<String, Box<dyn Error>> {
     Ok(format!("{}", &build_tower(input, 2022).0))
@@ -162,7 +154,7 @@ fn part_2(input: &str) -> Result<String, Box<dyn Error>> {
     let (height, diffs) = build_tower(input, 10000);
 
     diffs.iter().for_each(|d| print!("{d}"));
-    
+
     let (offset, cycle) = find_cycle(&diffs);
 
     let num_cycles = (num_blocks - offset) / cycle;
