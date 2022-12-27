@@ -2,7 +2,7 @@ use aoc::{client::get_input, point::Point};
 use std::{collections::HashSet, error::Error};
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let input = get_input(2022, 17)?.replace("\n", "");
+    let input = get_input(2022, 17)?.replace('\n', "");
     println!("solution part 1: {}", part_1(&input)?);
     println!("solution part 2: {}", part_2(&input)?);
 
@@ -63,7 +63,7 @@ fn get_blocks() -> Vec<Vec<Point>> {
     ]
 }
 
-fn check_block(position: &Point, block: &Vec<Point>, fixed_blocks: &HashSet<Point>) -> bool {
+fn check_block(position: &Point, block: &[Point], fixed_blocks: &HashSet<Point>) -> bool {
     !block
         .iter()
         .any(|b| !check_point(&(*b + *position), fixed_blocks))
@@ -78,7 +78,7 @@ fn find_cycle(elements: &[usize]) -> (usize, usize) {
             }
         }
     }
-    return (0, elements.len());
+    (0, elements.len())
 }
 
 fn check_point(position: &Point, fixed_blocks: &HashSet<Point>) -> bool {
@@ -93,7 +93,7 @@ fn check_point(position: &Point, fixed_blocks: &HashSet<Point>) -> bool {
         return false;
     }
 
-    !fixed_blocks.contains(&position)
+    !fixed_blocks.contains(position)
 }
 
 fn build_tower(input: &str, blocks: usize) -> (usize, Vec<usize>) {
@@ -151,9 +151,7 @@ fn part_1(input: &str) -> Result<String, Box<dyn Error>> {
 
 fn part_2(input: &str) -> Result<String, Box<dyn Error>> {
     let num_blocks = 1000000000000;
-    let (height, diffs) = build_tower(input, 10000);
-
-    diffs.iter().for_each(|d| print!("{d}"));
+    let (_height, diffs) = build_tower(input, 10000);
 
     let (offset, cycle) = find_cycle(&diffs);
 
@@ -183,10 +181,5 @@ mod tests {
     #[test]
     fn test_part_2() {
         assert_eq!(part_2(TEST_INPUT).unwrap(), "1514285714288")
-    }
-
-    #[test]
-    fn test_find_cycle() {
-        assert_eq!(find_cycle(&[1, 1, 2, 1, 1, 2, 1, 1, 2, 1, 1, 2]).1, 3);
     }
 }
