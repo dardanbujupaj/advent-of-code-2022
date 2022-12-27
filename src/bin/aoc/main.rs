@@ -37,7 +37,12 @@ fn main() -> Result<(), Box<dyn Error>> {
         Commands::Solve => {
             println!("solve {year} {day}");
             let output = Command::new("cargo")
-                .args(["run", "--bin", format!("{year}_{day:0>2}").as_str()])
+                .args([
+                    "run",
+                    "--release",
+                    "--bin",
+                    format!("{year}_{day:0>2}").as_str(),
+                ])
                 .output()?;
 
             println!("{}", String::from_utf8(output.stderr).unwrap());
